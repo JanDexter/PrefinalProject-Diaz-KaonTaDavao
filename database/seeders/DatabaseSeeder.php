@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             FeatureSeeder::class,
             UserSeeder::class,
             EaterySeeder::class,
+            ReviewSeeder::class,
         ]);
     }
 }

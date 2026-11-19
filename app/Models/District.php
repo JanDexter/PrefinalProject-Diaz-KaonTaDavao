@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class District extends Model
 {
@@ -15,5 +16,11 @@ class District extends Model
     public function eateries(): HasMany
     {
         return $this->hasMany(Eatery::class);
+    }
+
+    // reviews of all the eateries in this district (district -> eateries -> reviews)
+    public function reviews(): HasManyThrough
+    {
+        return $this->hasManyThrough(Review::class, Eatery::class);
     }
 }
