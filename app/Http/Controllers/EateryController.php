@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateEateryRequest;
 use App\Models\District;
 use App\Models\Eatery;
 use App\Models\Feature;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -103,7 +104,10 @@ class EateryController extends Controller
             'reviews.user',
         ]);
 
-        return view('eateries.show', compact('eatery'));
+        // for the Reviewer select in the review form
+        $users = User::orderBy('name')->get();
+
+        return view('eateries.show', compact('eatery', 'users'));
     }
 
     /**
@@ -153,6 +157,14 @@ class EateryController extends Controller
      */
     public function destroy(Eatery $eatery)
     {
-        //
+        // remove the child rows through the relationships first so nothing is left behind
+        $eatery->permit()->delete();
+        $eatery->dishes()->delete();
+        $eatery->reviews()->delete();
+        $eatery->features()->detach();
+
+        $eatery->delete();
+
+        return redirect()->route('eateries.index')->with('success', 'Eatery deleted.');
     }
 }

@@ -22,6 +22,13 @@
 
             <div class="flex gap-2">
                 <a href="{{ route('eateries.edit', $eatery) }}" class="bg-orange-700 text-white px-4 py-2 rounded hover:bg-orange-800">Edit</a>
+
+                {{-- forms can only send GET/POST, so @method('DELETE') fakes the DELETE verb --}}
+                <form action="{{ route('eateries.destroy', $eatery) }}" method="POST" onsubmit="return confirm('Delete this eatery and all its reviews?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+                </form>
             </div>
         </div>
 
@@ -104,6 +111,12 @@
                         <a href="{{ route('reviewers.show', $review->user) }}" class="font-semibold text-orange-800 hover:underline">{{ $review->user->name }}</a>
                         <x-rating :rating="$review->rating" />
                         <span class="text-sm text-gray-500">{{ $review->created_at->format('M d, Y') }}</span>
+
+                        <form action="{{ route('reviews.destroy', $review) }}" method="POST" class="ml-auto" onsubmit="return confirm('Delete this review?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-sm text-red-600 hover:underline">Delete</button>
+                        </form>
                     </div>
                     <p class="mt-1">{{ $review->body }}</p>
                 </li>
@@ -113,7 +126,60 @@
         </ul>
 
         @if ($eatery->is_open)
-            {{-- review form goes here --}}
+            <h3 class="text-lg font-bold mb-3">Write a review</h3>
+
+            @if ($errors->any())
+                <div class="mb-4 rounded border border-red-300 bg-red-100 px-4 py-3 text-red-800">
+                    <p class="font-semibold">Please fix the following:</p>
+                    <ul class="list-disc list-inside text-sm">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('eateries.reviews.store', $eatery) }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @csrf
+
+                <div>
+                    <label for="user_id" class="block text-sm font-medium mb-1">Reviewer</label>
+                    <select name="user_id" id="user_id" class="w-full border border-gray-300 rounded px-3 py-2">
+                        <option value="">Choose a reviewer</option>
+                        @foreach ($users as $user)
+                            <option value="{{ $user->id }}" @selected(old('user_id') == $user->id)>{{ $user->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('user_id')
+                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="rating" class="block text-sm font-medium mb-1">Rating</label>
+                    <select name="rating" id="rating" class="w-full border border-gray-300 rounded px-3 py-2">
+                        <option value="">Choose a rating</option>
+                        @for ($i = 5; $i >= 1; $i--)
+                            <option value="{{ $i }}" @selected(old('rating') == $i)>{{ $i }} {{ Str::plural('star', $i) }}</option>
+                        @endfor
+                    </select>
+                    @error('rating')
+                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="md:col-span-2">
+                    <label for="body" class="block text-sm font-medium mb-1">Review</label>
+                    <textarea name="body" id="body" rows="4" class="w-full border border-gray-300 rounded px-3 py-2">{{ old('body') }}</textarea>
+                    @error('body')
+                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="md:col-span-2">
+                    <button type="submit" class="bg-orange-700 text-white px-4 py-2 rounded hover:bg-orange-800">Post Review</button>
+                </div>
+            </form>
         @else
             <p class="text-gray-600 italic">This eatery is closed. Reviews are paused.</p>
         @endif
