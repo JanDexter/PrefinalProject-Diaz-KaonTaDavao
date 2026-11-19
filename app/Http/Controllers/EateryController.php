@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreEateryRequest;
+use App\Http\Requests\UpdateEateryRequest;
 use App\Models\District;
 use App\Models\Eatery;
 use App\Models\Feature;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class EateryController extends Controller
 {
@@ -49,15 +52,38 @@ class EateryController extends Controller
      */
     public function create()
     {
-        //
+        $districts = District::orderBy('name')->get();
+        $features = Feature::orderBy('name')->get();
+
+        return view('eateries.create', compact('districts', 'features'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreEateryRequest $request)
     {
-        //
+        $data = $request->validated();
+
+        $eatery = Eatery::create([
+            'district_id' => $data['district_id'],
+            'name' => $data['name'],
+            'slug' => Str::slug($data['name']),
+            'address' => $data['address'],
+            'price_range' => $data['price_range'],
+            'specialty' => $data['specialty'] ?? null,
+            'is_open' => $data['is_open'] ?? false, // unchecked box = false
+        ]);
+
+        // permit is created through the hasOne relationship
+        $eatery->permit()->create([
+            'permit_no' => $data['permit_no'],
+            'expires_on' => $data['expires_on'],
+        ]);
+
+        $eatery->features()->sync($data['features']);
+
+        return redirect()->route('eateries.show', $eatery)->with('success', 'Eatery added.');
     }
 
     /**
@@ -85,15 +111,41 @@ class EateryController extends Controller
      */
     public function edit(Eatery $eatery)
     {
-        //
+        $eatery->load(['permit', 'features']);
+
+        $districts = District::orderBy('name')->get();
+        $features = Feature::orderBy('name')->get();
+
+        return view('eateries.edit', compact('eatery', 'districts', 'features'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Eatery $eatery)
+    public function update(UpdateEateryRequest $request, Eatery $eatery)
     {
-        //
+        $data = $request->validated();
+
+        $eatery->update([
+            'district_id' => $data['district_id'],
+            'name' => $data['name'],
+            'slug' => Str::slug($data['name']),
+            'address' => $data['address'],
+            'price_range' => $data['price_range'],
+            'specialty' => $data['specialty'] ?? null,
+            'is_open' => $data['is_open'] ?? false, // unchecked box = false
+        ]);
+
+        // update the permit through the relationship (or make one if it is missing)
+        $eatery->permit()->updateOrCreate([], [
+            'permit_no' => $data['permit_no'],
+            'expires_on' => $data['expires_on'],
+        ]);
+
+        // sync replaces the old pivot rows with the checked features
+        $eatery->features()->sync($data['features']);
+
+        return redirect()->route('eateries.show', $eatery)->with('success', 'Eatery updated.');
     }
 
     /**
