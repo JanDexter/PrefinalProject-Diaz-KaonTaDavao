@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Eatery extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'district_id',
         'name',
@@ -35,5 +40,16 @@ class Eatery extends Model
     public function features(): BelongsToMany
     {
         return $this->belongsToMany(Feature::class);
+    }
+
+    // each eatery has only one business permit
+    public function permit(): HasOne
+    {
+        return $this->hasOne(Permit::class);
+    }
+
+    public function dishes(): HasMany
+    {
+        return $this->hasMany(Dish::class);
     }
 }
