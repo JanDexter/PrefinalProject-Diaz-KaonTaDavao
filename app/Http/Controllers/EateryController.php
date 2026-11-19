@@ -65,7 +65,19 @@ class EateryController extends Controller
      */
     public function show(Eatery $eatery)
     {
-        //
+        // load everything the page needs here so blade does not lazy load
+        $eatery->load([
+            'district',
+            'features',
+            'permit',
+            'dishes',
+            'reviews' => function ($query) {
+                $query->orderBy('created_at', 'desc')->orderBy('id', 'desc'); // newest first
+            },
+            'reviews.user',
+        ]);
+
+        return view('eateries.show', compact('eatery'));
     }
 
     /**
