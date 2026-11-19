@@ -67,7 +67,16 @@ class EaterySeeder extends Seeder
             ]);
             Dish::factory(rand(1, 4))->for($eatery)->create();
 
-            $featureIds = Feature::inRandomOrder()->take(rand(1, 3))->pluck('id');
+            // an eatery that serves pork cannot be Halal
+            $porkDishes = ['Pork Adobo', 'Sinigang na Baboy', 'Sisig', 'Lechon Kawali', 'Inihaw na Liempo'];
+            $hasPork = $eatery->dishes()->whereIn('name', $porkDishes)->exists();
+
+            $features = Feature::inRandomOrder();
+            if ($hasPork) {
+                $features->where('name', '!=', 'Halal');
+            }
+
+            $featureIds = $features->take(rand(1, 3))->pluck('id');
             $eatery->features()->attach($featureIds);
         }
     }
