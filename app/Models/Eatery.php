@@ -23,6 +23,12 @@ class Eatery extends Model
         'is_open',
     ];
 
+    // so {eatery} in the routes is found by slug instead of id
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     protected function casts(): array
     {
         return [
