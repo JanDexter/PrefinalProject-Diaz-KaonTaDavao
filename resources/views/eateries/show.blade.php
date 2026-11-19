@@ -76,7 +76,7 @@
         {{-- dishes --}}
         <div class="bg-white rounded-lg shadow p-6 md:col-span-2">
             <h2 class="text-xl font-bold mb-3">Dishes</h2>
-            <ul class="divide-y">
+            <ul class="divide-y divide-gray-200">
                 @forelse ($eatery->dishes as $dish)
                     <li class="py-2 flex justify-between gap-2">
                         <span>
@@ -104,15 +104,17 @@
             </p>
         @endif
 
-        <ul class="divide-y mb-6">
+        <ul class="divide-y divide-gray-200 mb-6">
             @forelse ($eatery->reviews as $review)
                 <li class="py-3">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <a href="{{ route('reviewers.show', $review->user) }}" class="font-semibold text-orange-800 hover:underline">{{ $review->user->name }}</a>
-                        <x-rating :rating="$review->rating" />
-                        <span class="text-sm text-gray-500">{{ $review->created_at->format('M d, Y') }}</span>
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <a href="{{ route('reviewers.show', $review->user) }}" class="font-semibold text-orange-800 hover:underline">{{ $review->user->name }}</a>
+                            <x-rating :rating="$review->rating" />
+                            <span class="text-sm text-gray-500">{{ $review->created_at->format('M d, Y') }}</span>
+                        </div>
 
-                        <form action="{{ route('reviews.destroy', $review) }}" method="POST" class="ml-auto" onsubmit="return confirm('Delete this review?')">
+                        <form action="{{ route('reviews.destroy', $review) }}" method="POST" class="shrink-0" onsubmit="return confirm('Delete this review?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-sm text-red-600 hover:underline">Delete</button>

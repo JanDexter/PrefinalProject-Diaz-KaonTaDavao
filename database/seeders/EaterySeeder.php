@@ -57,7 +57,15 @@ class EaterySeeder extends Seeder
                 Permit::factory()->for($eatery)->create();
             }
 
-            Dish::factory(rand(2, 5))->for($eatery)->create();
+            // reset unique() so dish names don't repeat inside the same eatery
+            fake()->unique(true);
+
+            // the specialty is always on the menu, plus 1 to 4 other dishes (2 to 5 in total)
+            Dish::factory()->for($eatery)->create([
+                'name' => $eatery->specialty,
+                'is_bestseller' => true,
+            ]);
+            Dish::factory(rand(1, 4))->for($eatery)->create();
 
             $featureIds = Feature::inRandomOrder()->take(rand(1, 3))->pluck('id');
             $eatery->features()->attach($featureIds);

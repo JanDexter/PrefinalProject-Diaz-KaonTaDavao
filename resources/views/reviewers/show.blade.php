@@ -5,7 +5,7 @@
     <p class="text-gray-600 mb-6">{{ $user->reviews->count() }} {{ Str::plural('review', $user->reviews->count()) }} written</p>
 
     <div class="bg-white rounded-lg shadow p-6">
-        <ul class="divide-y">
+        <ul class="divide-y divide-gray-200">
             @forelse ($user->reviews as $review)
                 <li class="py-3">
                     <div class="flex flex-wrap items-center gap-2">

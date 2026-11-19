@@ -19,10 +19,11 @@ class DishFactory extends Factory
     {
         return [
             'eatery_id' => Eatery::factory(),
-            'name' => fake()->randomElement([
-                'Tinolang Manok', 'Pork Adobo', 'Chicken Adobo', 'Sinigang na Baboy', 'Lechon Kawali',
-                'Pancit Bihon', 'Ginataang Gulay', 'Pinakbet', 'Fried Bangus', 'Kinilaw na Tuna',
-                'Inihaw na Liempo', 'Halo-Halo', 'Mango Shake', 'Durian Shake', 'Turon',
+            // side dishes and drinks (the eatery's specialty is added separately in the seeder)
+            'name' => fake()->unique()->randomElement([
+                'Tinolang Manok', 'Chicken Adobo', 'Lechon Kawali', 'Pancit Bihon', 'Ginataang Gulay',
+                'Pinakbet', 'Fried Bangus', 'Kinilaw na Tuna', 'Inihaw na Liempo', 'Halo-Halo',
+                'Mango Shake', 'Durian Shake', 'Turon',
             ]),
             'price' => fake()->randomFloat(2, 30, 350),
             'is_bestseller' => fake()->boolean(25),
